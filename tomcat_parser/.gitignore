@@ -1,0 +1,8 @@
+**/*.o
+*.json
+.cache
+.clang-format
+.vscode
+!Makefile
+test/basic
+test/stress
