@@ -21,8 +21,18 @@ char Pattern::LeftDelimiter() const {
     return m_left_delimiter;
 }
 
+// `m_left_delimiter == \0` means the left delimiter is undefined
+bool Pattern::HasLeftDelimiter() const {
+    return m_left_delimiter != '\0';
+}
+
 char Pattern::RightDelimiter() const {
     return m_right_delimiter;
+}
+
+// `m_right_delimiter == \0` means the right delimiter is undefined
+bool Pattern::HasRightDelimiter() const {
+    return m_right_delimiter != '\0';
 }
 
 const CharacterSet& Pattern::CharSet() const {
@@ -33,6 +43,7 @@ size_t Pattern::Length() const {
     return m_len;
 }
 
+// `m_len == 0` means the length is undefined
 bool Pattern::IsFixedLength() const {
     return m_len != 0;
 }

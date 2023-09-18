@@ -41,7 +41,7 @@ const std::string& UniverseStr() {
     static std::string UNIVERSE;
     if (UNIVERSE.empty()) {
         for (char c = '\0';; c++) {
-            if (!std::iscntrl(c))
+            if (!std::iscntrl(c)) // Exclude control characters
                 UNIVERSE += c;
             if (c == '\177')
                 break;

@@ -42,6 +42,9 @@ void Parser::Process(const std::string& format, const std::vector<std::string>& 
     }
 }
 
+// Returns false when the format is invalid.
+// For example, "%t \"%r\"" yields m_patterns = {RegexPattern(%t), LiteralPattern(" \""), RegexPattern(%r),
+// LiteralPattern("\"")}
 bool Parser::GenPatterns(const std::string& format) {
     m_patterns.clear();
 
@@ -120,12 +123,13 @@ void Parser::SplitPatterns() {
         }
 
         charset.SetUnion(cur_pattern->CharSet());
-        if ((!i || m_can_split[i - 1]) && cur_pattern->IsFixedLength()) {
+        if ((!i || m_can_split[i - 1]) && cur_pattern->IsFixedLength()) { // pre_pattern | cur_pattern ? nxt_pattern
+            // The cur_pattern and the pre_pattern can be splitted, and the cur_pattern is fixed length
             m_can_split[i] = 1;
             m_split_specs.emplace_back(cur_pattern->Length(), begin_index, i);
             charset.Clear();
             begin_index = i + 1;
-        } else if (nxt_pattern->LeftDelimiter() && !charset.Contains(nxt_pattern->LeftDelimiter())) {
+        } else if (nxt_pattern->HasLeftDelimiter() && !charset.Contains(nxt_pattern->LeftDelimiter())) {
             m_can_split[i] = 1;
             m_split_specs.emplace_back(nxt_pattern->LeftDelimiter(), begin_index, i);
             charset.Clear();
@@ -154,12 +158,14 @@ void Parser::SplitPatternsReverse() {
         }
 
         charset.SetUnion(cur_pattern->CharSet());
-        if ((i == len - 1 || m_can_split[i]) && cur_pattern->IsFixedLength()) {
+        if ((i == len - 1 || m_can_split[i])
+            && cur_pattern->IsFixedLength()) { // (pre_pattern ? cur_pattern | nxt_pattern)
+            // The cur_pattern and the nxt_pattern can be splitted, and the cur_pattern is fixed length
             m_can_split[i - 1] = 1;
             m_split_specs_rev.emplace_back(cur_pattern->Length(), i, end_index);
             charset.Clear();
             end_index = i - 1;
-        } else if (pre_pattern->RightDelimiter() && !charset.Contains(pre_pattern->LeftDelimiter())) {
+        } else if (pre_pattern->HasRightDelimiter() && !charset.Contains(pre_pattern->LeftDelimiter())) {
             m_can_split[i - 1] = 1;
             m_split_specs_rev.emplace_back(pre_pattern->RightDelimiter(), i, end_index);
             charset.Clear();
@@ -250,10 +256,12 @@ Log Parser::ProcessSingleLine(const std::string& line) const {
     for (const auto& pattern_group : m_pattern_groups) {
         size_t line_begin = pattern_group.begin_index ? m_split_line_indices[pattern_group.begin_index - 1] + 1 : 0;
         size_t line_end = m_split_line_indices[pattern_group.end_index];
-        if (pattern_group.regex_patterns.size() == 1 && pattern_group.regex_patterns[0]->IsFullCapture()) {
+        if (pattern_group.regex_patterns.size() == 1
+            && pattern_group.regex_patterns[0]
+                   ->IsFullCapture()) { // Only consists of a fully captured regular pattern; we have known its match
             log.AddContent(pattern_group.regex_patterns[0]->Description(),
                            line.substr(line_begin, line_end - line_begin + 1));
-        } else {
+        } else { // There are remaining unsplitted patterns; we delegate them to regex_match
             if (std::regex_match(
                     line.begin() + line_begin, line.begin() + line_end + 1, matches, pattern_group.regex)) {
                 for (size_t i = 1; i < matches.size(); i++)

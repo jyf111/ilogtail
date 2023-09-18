@@ -1,10 +1,10 @@
 #include "random_log.h"
 
 #include <algorithm>
-#include <iostream>
 
 #include "pattern_factory.h"
 #include "util.h"
+
 namespace tomcat_parser {
 RandomLog::RandomLog()
     : m_formats("aAbBDFhHIlmpqrsStTuUvX"),

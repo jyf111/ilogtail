@@ -11,6 +11,7 @@
 #include "pattern_factory.h"
 
 namespace tomcat_parser {
+// Uses a single regular expression for log parsing (baseline solution)
 class RegexParser {
 public:
     RegexParser() = default;

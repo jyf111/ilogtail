@@ -21,17 +21,25 @@ public:
     void Process(const std::string& format, const std::vector<std::string>& input, std::vector<Log>& output);
 
 private:
+    // Generates patterns based on the input format
     bool GenPatterns(const std::string& format);
 
+    // Gets the raw base pointer to m_patterns[index] (no ownership)
     Pattern* GetPattern(size_t index) const;
 
+    // Splits m_patterns based on the characteristics of adjacent patterns, i.e., fixed length, delimiters, and
+    // character sets
     void SplitPatterns();
+    // Splits m_patterns in reverse order
     void SplitPatternsReverse();
 
+    // Generates pattern groups based on m_can_split
     void GenPatternGroups();
 
+    // Determines the split index on the input line between adjacent patterns, i.e., m_split_line_indices.
     bool SplitSingleLine(const std::string& line);
 
+    // Parses the input line based on m_pattern_groups and m_split_line_indices
     Log ProcessSingleLine(const std::string& line) const;
 
 #ifdef DEBUG

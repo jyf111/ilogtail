@@ -29,6 +29,7 @@ private:
         bool full_capture;
     };
 
+    // Stores essential information for each format control text
     std::unordered_map<char, FormatSpec> m_format_table;
     std::unordered_map<char, FormatSpec> m_keyformat_table;
 };

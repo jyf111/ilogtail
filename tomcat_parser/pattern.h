@@ -20,7 +20,9 @@ public:
 
     const std::string& Expression() const;
     char LeftDelimiter() const;
+    bool HasLeftDelimiter() const;
     char RightDelimiter() const;
+    bool HasRightDelimiter() const;
     const CharacterSet& CharSet() const;
 
     size_t Length() const;
@@ -35,11 +37,13 @@ protected:
     size_t m_len;
 };
 
+// Represents a plain literal text
 class LiteralPattern : public Pattern {
 public:
     LiteralPattern(const std::string& expression);
 };
 
+// Represents a format control text, identified by a leading '%'
 class RegexPattern : public Pattern {
 public:
     RegexPattern(const std::string& expression,

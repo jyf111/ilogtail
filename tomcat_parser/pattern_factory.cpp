@@ -283,9 +283,10 @@ std::unique_ptr<LiteralPattern> PatternFactory::GenLiteralPattern(const std::str
     return make_unique<LiteralPattern>(expression);
 }
 
+// Returns nullptr when the expression is an invalid format control text
 std::unique_ptr<RegexPattern> PatternFactory::GenRegexPattern(const std::string& expression) const {
     size_t p1 = 0;
-    if (expression[p1] == '{') {
+    if (expression[p1] == '{') { // {xxx}a
         size_t p2 = expression.find_last_of('}');
         if (p2 != std::string::npos && expression.size() == p2 + 2) {
             auto iter = m_keyformat_table.find(expression[p2 + 1]);
@@ -300,7 +301,7 @@ std::unique_ptr<RegexPattern> PatternFactory::GenRegexPattern(const std::string&
                                                  iter->second.full_capture);
             }
         }
-    } else {
+    } else { // a
         if (expression.size() == 1) {
             auto iter = m_format_table.find(expression[0]);
             if (iter != m_format_table.end()) {
